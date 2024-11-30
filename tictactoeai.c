@@ -19,7 +19,7 @@ int **insert_x(int **matrix, int index) {
   }
   if (index < 9) {
     int i = index - 6;
-    matrix[2][i] = 2;
+    m[2][i] = 2;
   }
   return m;
 }
