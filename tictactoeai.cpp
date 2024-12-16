@@ -1,6 +1,6 @@
 #include "tictactoeai.h"
 
-std::array<int, 9> AI::answer(std::array<int,9>& plate,std::uint8_t depth)
+std::array<int, 9> AI::answer(std::array<int,9>& plate)
 {
     // validation phase
     std::int8_t zeros{}, ones{}, twos{};
@@ -37,10 +37,6 @@ std::array<int, 9> AI::answer(std::array<int,9>& plate,std::uint8_t depth)
         }
     }
     
-    if (depth == 1) {
-        return prediction;
-    }
-    // will modify this
     return prediction;
 }
 // calculating the score of the next possible move

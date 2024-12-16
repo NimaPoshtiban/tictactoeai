@@ -23,11 +23,12 @@ public:
 	/// </rules>
 	/// <param name="plate"></param>
 	/// <returns></returns>
-	static std::array<int, 9> answer(std::array<int, 9>& plate,std::uint8_t depth=1);	
+	static std::array<int, 9> answer(std::array<int, 9>& plate);	
 private:
 
 	// calculating the score of the next possible move
 	static std::int8_t calculate_score(std::array<int, 9>& matrix);
 	static std::array<int, 9> generate_matrix(const std::array<int, 9>& matrix, std::uint8_t insert_position);
+
 	~AI() = default;
 };
