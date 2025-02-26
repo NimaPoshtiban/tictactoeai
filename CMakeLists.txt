@@ -19,10 +19,49 @@ if (CMAKE_VERSION VERSION_GREATER 3.12)
     set_property(TARGET ai PROPERTY CXX_STANDARD 20)
 endif()
 
-# Optional: Set the output directory for the DLL or shared library
+# Set output directories for the C++ library
 set_target_properties(ai PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
 )
 
-# TODO: Add tests and install targets if needed.
+# --- SBCL Compilation for Lisp ---
+
+# Find SBCL executable
+find_program(SBCL_EXECUTABLE sbcl)
+if(NOT SBCL_EXECUTABLE)
+    message(FATAL_ERROR "SBCL not found. Please install SBCL and ensure 'sbcl' is in your PATH.")
+endif()
+
+# Define the Lisp source file and output FASL file
+set(LISP_SOURCE "${CMAKE_SOURCE_DIR}/minmax.lisp")
+set(LISP_FASL "${CMAKE_BINARY_DIR}/minmax.fasl")
+
+# Custom command to compile the Lisp file to FASL
+add_custom_command(
+    OUTPUT ${LISP_FASL}
+    COMMAND ${SBCL_EXECUTABLE} --noinform --eval "(compile-file \"${LISP_SOURCE}\")" --eval "(quit)"
+    DEPENDS ${LISP_SOURCE}
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    COMMENT "Compiling minmax.lisp to minmax.fasl"
+)
+
+# Custom target to ensure the FASL is built
+add_custom_target(lisp_fasl ALL DEPENDS ${LISP_FASL})
+
+# Optional: Create a standalone executable from the Lisp file
+set(LISP_EXE "${CMAKE_BINARY_DIR}/bin/minmax${CMAKE_EXECUTABLE_SUFFIX}")
+add_custom_command(
+    OUTPUT ${LISP_EXE}
+    COMMAND ${SBCL_EXECUTABLE} --noinform --load "${LISP_SOURCE}" --eval "(sb-ext:save-lisp-and-die \"${LISP_EXE}\" :toplevel (lambda () (format t \"Minmax running~%\") (finish-output) 0) :executable t)"
+    DEPENDS ${LISP_SOURCE}
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    COMMENT "Building standalone Lisp executable: minmax"
+)
+
+# Custom target for the executable
+add_custom_target(lisp_exe ALL DEPENDS ${LISP_EXE})
+
+# Ensure the C++ library is built before the Lisp targets (if they need to interact)
+add_dependencies(lisp_fasl ai)
+add_dependencies(lisp_exe ai)
