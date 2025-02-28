@@ -37,9 +37,8 @@ jobs:
 
     - name: Set reusable strings
       id: strings
-      shell: bash
       run: |
-        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+        echo "build-output-dir=${{ github.workspace }}/build" >> $GITHUB_ENV
 
     - name: Install SBCL on Ubuntu
       if: matrix.os == 'ubuntu-latest'
@@ -63,6 +62,6 @@ jobs:
     - name: Test
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
       run: ctest --build-config ${{ matrix.build_type }}
-
-    - name: Run SBCL Script
-      run: sbcl --script ./minmax.lisp
+    - name: Compile SBCL Script
+      run: sbcl --eval '(compile-file "minmax.lisp")' --eval '(quit)'
+    
