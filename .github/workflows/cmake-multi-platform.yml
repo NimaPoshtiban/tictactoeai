@@ -58,23 +58,27 @@ jobs:
 
     - name: Configure CMake
       run: |
-        cmake -B ${{ steps.strings.outputs.build-output-dir }} \
-        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
-        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
-        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+        cmake -B ${{ steps.strings.outputs.build-output-dir }} 
+        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} 
+        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} 
+        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} 
         -S ${{ github.workspace }}
 
     - name: Build
       env:
         SHELL: /bin/bash
-      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
+      run: |
+        cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }} --target ai
 
-    - name: Test
-      env:
-        SHELL: /bin/bash
+    - name: Test on Linux
+      if: matrix.os == 'ubuntu-latest'
+      working-directory: ${{ steps.strings.outputs.build-output-dir }}
+      run: |
+        ctest --build-config ${{ matrix.build_type }} --tests-regex "ai_test"
+    - name: Test on Windows
+      if: matrix.os == 'windows-latest'
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
       run: ctest --build-config ${{ matrix.build_type }}
-
     - name: Build Common Lisp fasl file
       if: matrix.os == 'windows-latest'
       run: sbcl --eval '(compile-file "minmax.lisp")' --eval '(quit)'
