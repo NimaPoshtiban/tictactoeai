@@ -1,3 +1,4 @@
+# This starter workflow is for a CMake project running on multiple platforms.
 name: CMake on multiple platforms
 
 on:
@@ -12,7 +13,6 @@ jobs:
 
     strategy:
       fail-fast: false
-
       matrix:
         os: [ubuntu-latest, windows-latest]
         build_type: [Release]
@@ -21,7 +21,7 @@ jobs:
           - os: windows-latest
             c_compiler: cl
             cpp_compiler: cl
-
+         
           - os: ubuntu-latest
             c_compiler: clang
             cpp_compiler: clang++
@@ -44,7 +44,7 @@ jobs:
 
     - name: Install SBCL on Windows
       if: matrix.os == 'windows-latest'
-      run: choco install -y sbcl
+      run: choco install sbcl
 
     - name: Install SBCL on Ubuntu
       if: matrix.os == 'ubuntu-latest'
@@ -62,15 +62,19 @@ jobs:
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-        -DSBCL_EXECUTABLE=$(which sbcl) \
         -S ${{ github.workspace }}
 
     - name: Build
+      env:
+        SHELL: /bin/bash
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
 
     - name: Test
+      env:
+        SHELL: /bin/bash
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
       run: ctest --build-config ${{ matrix.build_type }}
 
     - name: Build Common Lisp fasl file
+      if: matrix.os == 'windows-latest'
       run: sbcl --eval '(compile-file "minmax.lisp")' --eval '(quit)'
