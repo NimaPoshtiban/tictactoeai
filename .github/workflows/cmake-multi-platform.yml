@@ -74,7 +74,7 @@ jobs:
 
         # Copy the compiled binaries and libraries
         cp ${{ steps.strings.outputs.build-output-dir }}/*.exe ${{ steps.strings.outputs.build-output-dir }}/package/bin/
-        cp ${{ steps.strings.outputs.build-output-dir }}/lib/*.dll ${{ steps.strings.outputs.build-output-dir }}/package/lib/
+        #cp ${{ steps.strings.outputs.build-output-dir }}/lib/*.dll ${{ steps.strings.outputs.build-output-dir }}/package/lib/
 
         # Include additional required files (e.g., config, README)
         cp ${{ github.workspace }}/minmax.fasl ${{ steps.strings.outputs.build-output-dir }}/package/
