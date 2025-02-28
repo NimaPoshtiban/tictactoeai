@@ -40,7 +40,7 @@ jobs:
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
     
     - name: Install SBCL on Windows
-      run: choco install sbcl
+      run: choco install -y sbcl
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
@@ -66,3 +66,33 @@ jobs:
       run: sbcl --eval '(compile-file "minmax.lisp")' --eval '(quit)'
     
 
+    - name: Package Build Artifacts
+      run: |
+        # Create directories for packaging
+        mkdir -p ${{ steps.strings.outputs.build-output-dir }}/package/bin
+        mkdir -p ${{ steps.strings.outputs.build-output-dir }}/package/lib
+
+        # Copy the compiled binaries and libraries
+        cp ${{ steps.strings.outputs.build-output-dir }}/*.exe ${{ steps.strings.outputs.build-output-dir }}/package/bin/
+        cp ${{ steps.strings.outputs.build-output-dir }}/lib/*.dll ${{ steps.strings.outputs.build-output-dir }}/package/lib/
+
+        # Include additional required files (e.g., config, README)
+        cp ${{ github.workspace }}/minmax.fasl ${{ steps.strings.outputs.build-output-dir }}/package/
+
+    - name: Create ZIP Archive
+      run: |
+        cd ${{ steps.strings.outputs.build-output-dir }}
+        powershell Compress-Archive -Path package\* -DestinationPath build_artifacts.zip
+
+    - name: Create GZ Archive
+      run: |
+        cd ${{ steps.strings.outputs.build-output-dir }}
+        tar -czf build_artifacts.tar.gz package
+
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: build_artifacts
+        path: |
+          ${{ steps.strings.outputs.build-output-dir }}/build_artifacts.zip
+          ${{ steps.strings.outputs.build-output-dir }}/build_artifacts.tar.gz
