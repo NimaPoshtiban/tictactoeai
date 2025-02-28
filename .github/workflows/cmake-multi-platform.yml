@@ -23,7 +23,7 @@ jobs:
       #
       # To add more build types (Release, Debug, RelWithDebInfo, etc.) customize the build_type list.
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [windows-latest]
         build_type: [Release]
         c_compiler: [ clang, cl]
         include:
@@ -31,9 +31,6 @@ jobs:
             c_compiler: cl
             cpp_compiler: cl
          
-          - os: ubuntu-latest
-            c_compiler: clang
-            cpp_compiler: clang++
         exclude:
           - os: windows-latest
             c_compiler: gcc
@@ -49,12 +46,9 @@ jobs:
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
       id: strings
       run: |
-        echo "build-output-dir=${{ github.workspace }}/build" >> $GITHUB_ENV
+        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
     - name: Configure CMake
-<<<<<<< HEAD
-      run: cmake -B /home/runner/work/tictactoeai/tictactoeai/build -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Release -S /home/runner/work/tictactoeai/tictactoeai
-=======
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: >
@@ -63,7 +57,7 @@ jobs:
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -S ${{ github.workspace }}
->>>>>>> parent of b5c0136 (Update cmake-multi-platform.yml)
+
 
     - name: Build
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
@@ -74,9 +68,8 @@ jobs:
       # Execute tests defined by the CMake configuration. Note that --build-config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest --build-config ${{ matrix.build_type }}
-<<<<<<< HEAD
+
     - name: Compile SBCL Script
       run: sbcl --eval '(compile-file "minmax.lisp")' --eval '(quit)'
     
-=======
->>>>>>> parent of b5c0136 (Update cmake-multi-platform.yml)
+
