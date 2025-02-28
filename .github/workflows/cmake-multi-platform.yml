@@ -90,9 +90,9 @@ jobs:
         tar -czf build_artifacts.tar.gz package
 
     - name: Upload Build Artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
-        name: build_artifacts
+        name: tttai-${{ matrix.runs-on }}
         path: |
           ${{ steps.strings.outputs.build-output-dir }}/build_artifacts.zip
           ${{ steps.strings.outputs.build-output-dir }}/build_artifacts.tar.gz
